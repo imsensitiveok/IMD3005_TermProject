@@ -15,9 +15,6 @@ public:
     int height;
 
     void Draw();
-
-
-    int speed;
     
 
     GameObject();

@@ -19,9 +19,12 @@ public:
 
 	//Arduino stuff
 	ofArduino				m_arduino;
+	
 	//ofTrueTypeFont          m_font;
-	int					    m_input_val;	//sensor value
-	bool					m_bSetup;       //is Arduinio initialized yet
+	
+	int m_input_val;	//sensor value
+	bool m_bSetup;       //is Arduinio initialized yet
+	
 	void setupArduino(const int& _version);
 	void updateArduino();
 	void digitalPinChanged(const int& pinNum);
@@ -38,5 +41,9 @@ public:
 	GameObject obstacle2;
 
 	GameObject goal;
+
+	ofRectangle mazeWall[15];
+
+	int speed;
 
 };

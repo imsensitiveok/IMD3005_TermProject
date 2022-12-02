@@ -3,7 +3,8 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    ofSetWindowShape(1280, 720);
+    ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
+    //ofSetFrameRate(10);
 
     //m_font.load("franklinGothic.otf", 16);
 
@@ -12,7 +13,7 @@ void ofApp::setup()
     //setup Arduino
     // replace the string below with the serial port for your Arduino board
     // you can get this from the Arduino application (Tools Menu -> Port) 
-    m_arduino.connect("COM3", 57600);
+    m_arduino.connect(ARDUINO_NAME, 57600);
 
     m_input_val = 0.0f;
 
@@ -49,11 +50,28 @@ void ofApp::setup()
     goal.g = 255;
     goal.b = 0;
 
+    speed = 1;
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
+    //JOYSTICK:
+    if (m_arduino.getAnalog(JOYSTICK_Y) < 300) {
+        player.y += 1 * speed;
+    }
+    else if (m_arduino.getAnalog(JOYSTICK_Y) > 800) {
+        player.y -= 1 * speed;
+    }
+
+    if (m_arduino.getAnalog(JOYSTICK_X) < 300) {
+        player.x += 1 * speed;
+    }
+    else if (m_arduino.getAnalog(JOYSTICK_X) > 800) {
+        player.x -= 1 * speed;
+    }
+
     updateArduino();
 }
 
@@ -67,16 +85,22 @@ void ofApp::draw()
     //ofDrawRectangle(510, 15, 275, 150);
     //ofDisableAlphaBlending();
 
-    ofSetColor(0, 0, 0);
+    ofSetColor(255, 255, 255);
     
-
-
     // Draw sensor input values
     //m_font.drawString("Sensor Value: " + ofToString(m_input_val), 530, 105);
 
     // remap our flex values (can check on arduino sketch as values will always vary between sensors)
-    float radius = ofMap(m_input_val, 0, 255, 20, 150);
-    ofDrawCircle(640, 400, radius);
+    //float radius = ofMap(m_input_val, 0, 255, 20, 150);
+    //ofDrawCircle(640, 400, radius);
+
+    //BORDER:
+    ofDrawRectangle(0, 0, WINDOW_WIDTH, MAZE_BORDER_SIZE);
+    ofDrawRectangle(0, WINDOW_HEIGHT - MAZE_BORDER_SIZE, WINDOW_WIDTH, MAZE_BORDER_SIZE);
+    ofDrawRectangle(0, 0, MAZE_BORDER_SIZE, WINDOW_HEIGHT);
+    ofDrawRectangle(WINDOW_WIDTH - MAZE_BORDER_SIZE, 0, MAZE_BORDER_SIZE, WINDOW_HEIGHT);
+
+    ofDrawRectangle(0, 100, 200, MAZE_BORDER_SIZE);
 
 
     //Draw the GameObjects
@@ -98,6 +122,7 @@ void ofApp::setupArduino(const int& _version)
     // print firmware name and version to the console
     cout << m_arduino.getFirmwareName() << endl;
     cout << "firmata v" << m_arduino.getMajorFirmwareVersion() << "." << m_arduino.getMinorFirmwareVersion() << endl;
+    
 
     //analog input
     m_arduino.sendAnalogPinReporting(JOYSTICK_X, ARD_ANALOG);
@@ -129,38 +154,11 @@ void ofApp::digitalPinChanged(const int& pinNum) {
 }
 
 void ofApp::analogPinChanged(const int& pinNum) {
-    std::cout  << "analog pin: " + ofToString(pinNum) + " : " + ofToString(m_arduino.getAnalog(pinNum)) << std::endl;
-    
-    //cout << "hi";
-    
-    if (pinNum == JOYSTICK_X) {
-        /*  
-        xValue = analogRead(VRX_PIN);
-        yValue = analogRead(VRY_PIN);*/
+    //std::cout  << "analog pin: " + ofToString(pinNum) + " : " + ofToString(m_arduino.getAnalog(pinNum)) << std::endl;
 
-        
+    //cout << "X: " << m_arduino.getAnalog(JOYSTICK_X) << "Y: " << m_arduino.getAnalog(JOYSTICK_Y) << endl;
 
-        cout << m_arduino.getAnalog(JOYSTICK_X) << endl;
 
-        //get analog value
-        //m_input_val = m_arduino.getAnalog(pinNum);
-        //m_input_val = (int)ofMap(m_input_val, 0, 1023, 0, 255);
-
-        //send out pmw value
-        //m_arduino.sendPwm(PIN_PWM_OUTPUT, (int)m_input_val);
-    }
-
-    if (pinNum == JOYSTICK_Y) {
-    
-    }
-
-    if (pinNum == BUTTON_INFO) {
-
-    }
-
-    if (pinNum == BUTTON_ATTACK) {
-
-    }
 
 }
 

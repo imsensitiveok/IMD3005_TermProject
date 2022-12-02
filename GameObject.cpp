@@ -10,9 +10,6 @@ GameObject::GameObject() {
 
     width = 40;
     height = 40;
-
-    //possibly move to ofApp
-    speed = 0;
 }
 
 GameObject::~GameObject() {
