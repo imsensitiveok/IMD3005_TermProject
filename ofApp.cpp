@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
+    ofSetWindowShape(WINDOW_SIZE, WINDOW_SIZE);
     //ofSetFrameRate(10);
 
     //m_font.load("franklinGothic.otf", 16);
@@ -24,16 +24,19 @@ void ofApp::setup()
 
     m_bSetup = false;
 
+    mazeUnit = WINDOW_SIZE / 5;
+
+
     //Set up GameObjects
 
-    player.x = 0;
-    player.y = 0;
+    player.x = 80;
+    player.y = 80;
     player.r = 0;
     player.g = 255;
     player.b = 0;
 
-    obstacle1.x = 100;
-    obstacle1.y = 100;
+    obstacle1.x = 550;
+    obstacle1.y = 250;
     obstacle1.r = 255;
     obstacle1.g = 0;
     obstacle1.b = 0;
@@ -44,8 +47,8 @@ void ofApp::setup()
     obstacle2.g = 0;
     obstacle2.b = 0;
 
-    goal.x = 300;
-    goal.y = 300;
+    goal.x = 400;
+    goal.y = 700;
     goal.r = 255;
     goal.g = 255;
     goal.b = 0;
@@ -59,18 +62,20 @@ void ofApp::update()
 {
     //JOYSTICK:
     if (m_arduino.getAnalog(JOYSTICK_Y) < 300) {
-        player.y += 1 * speed;
+        player.y += speed;
     }
     else if (m_arduino.getAnalog(JOYSTICK_Y) > 800) {
-        player.y -= 1 * speed;
+        player.y -= speed;
     }
 
     if (m_arduino.getAnalog(JOYSTICK_X) < 300) {
-        player.x += 1 * speed;
+        player.x += speed;
     }
     else if (m_arduino.getAnalog(JOYSTICK_X) > 800) {
-        player.x -= 1 * speed;
+        player.x -= speed;
     }
+
+    //getIRDistance(int& val);
 
     updateArduino();
 }
@@ -94,16 +99,43 @@ void ofApp::draw()
     //float radius = ofMap(m_input_val, 0, 255, 20, 150);
     //ofDrawCircle(640, 400, radius);
 
-    //BORDER:
-    ofDrawRectangle(0, 0, WINDOW_WIDTH, MAZE_BORDER_SIZE);
-    ofDrawRectangle(0, WINDOW_HEIGHT - MAZE_BORDER_SIZE, WINDOW_WIDTH, MAZE_BORDER_SIZE);
-    ofDrawRectangle(0, 0, MAZE_BORDER_SIZE, WINDOW_HEIGHT);
-    ofDrawRectangle(WINDOW_WIDTH - MAZE_BORDER_SIZE, 0, MAZE_BORDER_SIZE, WINDOW_HEIGHT);
+    //MAZE:
+        //BORDER:
+        ofDrawRectangle(0, 0, WINDOW_SIZE, MAZE_BORDER_SIZE);
+        ofDrawRectangle(0, WINDOW_SIZE - MAZE_BORDER_SIZE, WINDOW_SIZE, MAZE_BORDER_SIZE);
+        ofDrawRectangle(0, 0, MAZE_BORDER_SIZE, WINDOW_SIZE);
+        ofDrawRectangle(WINDOW_SIZE - MAZE_BORDER_SIZE, 0, MAZE_BORDER_SIZE, WINDOW_SIZE);
 
-    ofDrawRectangle(0, 100, 200, MAZE_BORDER_SIZE);
+        //ROW 1:
+        ofDrawRectangle(0, mazeUnit * 1, mazeUnit * 2, MAZE_BORDER_SIZE);
+        ofDrawRectangle(mazeUnit * 3, mazeUnit * 1, mazeUnit * 1, MAZE_BORDER_SIZE);
+
+        //ROW 2:
+        ofDrawRectangle(mazeUnit * 2, mazeUnit * 2, mazeUnit * 2, MAZE_BORDER_SIZE);
+
+        //ROW 3:
+        ofDrawRectangle(0, mazeUnit * 3, mazeUnit * 1, MAZE_BORDER_SIZE);
+        ofDrawRectangle(mazeUnit * 2, mazeUnit * 3, mazeUnit * 1, MAZE_BORDER_SIZE);
+
+        //ROW 4:
+        ofDrawRectangle(mazeUnit * 1, mazeUnit * 4, mazeUnit * 3, MAZE_BORDER_SIZE);
+
+        //COLUMN 1:
+        ofDrawRectangle(mazeUnit * 1, mazeUnit * 2, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
+
+        //COLUMN 2:
+        ofDrawRectangle(mazeUnit * 2, mazeUnit * 1, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
+        ofDrawRectangle(mazeUnit * 2, mazeUnit * 3, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
+
+        //COLUMN 3:
+        ofDrawRectangle(mazeUnit * 3, mazeUnit * 0, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
+        ofDrawRectangle(mazeUnit * 3, mazeUnit * 4, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
+
+        //COLUMN 4:
+        ofDrawRectangle(mazeUnit * 4, mazeUnit * 3, MAZE_BORDER_SIZE, mazeUnit * 1 + MAZE_BORDER_SIZE);
 
 
-    //Draw the GameObjects
+    //GAME OBJECTS:
     player.Draw();
     obstacle1.Draw();
     obstacle2.Draw();
@@ -127,6 +159,7 @@ void ofApp::setupArduino(const int& _version)
     //analog input
     m_arduino.sendAnalogPinReporting(JOYSTICK_X, ARD_ANALOG);
     m_arduino.sendAnalogPinReporting(JOYSTICK_Y, ARD_ANALOG);
+    m_arduino.sendAnalogPinReporting(PROXIMITY, ARD_ANALOG);
     m_arduino.sendAnalogPinReporting(BUTTON_INFO, ARD_ANALOG);
     m_arduino.sendAnalogPinReporting(BUTTON_ATTACK, ARD_ANALOG);
 
@@ -142,15 +175,16 @@ void ofApp::setupArduino(const int& _version)
 
 //--------------------------------------------------------------
 void ofApp::updateArduino() {
-
-    // update the arduino, get any data or messages.
-    // the call to m_arduino.update() is required
     m_arduino.update();
 }
 
 void ofApp::digitalPinChanged(const int& pinNum) {
+    //
+    // cout << m_arduino.getDigital(PROXIMITY);
+    //if (pinNum == PROXIMITY) {
+    //    std::cout << "digital pin: " + ofToString(pinNum) + " : " + ofToString(m_arduino.getDigital(pinNum)) << std::endl;
 
-    //std::cout  << "digital pin: " + ofToString(pinNum) + " : " + ofToString(m_arduino.getDigital(pinNum)) << std::endl;
+    //}
 }
 
 void ofApp::analogPinChanged(const int& pinNum) {

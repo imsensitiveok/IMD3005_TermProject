@@ -27,9 +27,9 @@ public:
 	
 	void setupArduino(const int& _version);
 	void updateArduino();
+	//void calculateSpeed();
 	void digitalPinChanged(const int& pinNum);
 	void analogPinChanged(const int& pinNum);
-
 	float getIRDistance(int& val);
 
 
@@ -42,7 +42,8 @@ public:
 
 	GameObject goal;
 
-	ofRectangle mazeWall[15];
+	ofRectangle mazeWall[16];
+	int mazeUnit;
 
 	int speed;
 
