@@ -3,7 +3,7 @@
 class GameObject {
 public:
     ofRectangle rect;
-
+    
     int x;
     int y;
 
@@ -16,6 +16,7 @@ public:
 
     void Draw();
     
+    bool isKilled;
 
     GameObject();
     ~GameObject();

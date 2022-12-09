@@ -5,11 +5,13 @@ GameObject::GameObject() {
     y = 0;
 
     r = 255;
-    g = 255;
-    b = 255;
+    g = 0;
+    b = 0;
 
-    width = 40;
-    height = 40;
+    width = 60;
+    height = 60;
+
+    isKilled = false;
 }
 
 GameObject::~GameObject() {
