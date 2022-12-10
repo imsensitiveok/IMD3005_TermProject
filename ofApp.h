@@ -21,6 +21,7 @@ public:
 	int mazeUnit;
 	int speed;
 	int proximity_val;			//proximity sensor value
+	int proximity_light;
 
 	bool arduinoSetup;			//if Arduinio initialized yet
 	bool showInstructions;

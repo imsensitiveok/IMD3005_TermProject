@@ -58,7 +58,7 @@ void ofApp::setup()
 void ofApp::update()
 {
     //CHECKS IF GAME IS WON:
-    if (goal.rect.inside(player.x, player.y)) {
+    if (goal.rect.inside(player.x + player.width/2, player.y + player.height/2)) {
         won = true;
     }
 
@@ -95,7 +95,9 @@ void ofApp::draw()
     } 
     else {
         //DRAW GAME OBJECTS:
+        
         player.Draw();
+        
         if (obstacle1.isKilled == false) {
             obstacle1.Draw();
         }
@@ -137,12 +139,6 @@ void ofApp::draw()
             instructions.draw(0, 0);
         }
     }
-
-    
-
-    
-
-    
 }
 
 //--------------------------------------------------------------
@@ -168,17 +164,16 @@ void ofApp::setupArduino(const int& _version)
     //PMW/digital output
     m_arduino.sendDigitalPinMode(LIGHT_ON_RIGHT, ARD_PWM);
     m_arduino.sendDigitalPinMode(LIGHT_ON_LEFT, ARD_PWM);
-    m_arduino.sendDigitalPinMode(BUTTON_INFO, ARD_PWM);
-    m_arduino.sendDigitalPinMode(BUTTON_ATTACK, ARD_PWM);
-    //m_arduino.sendDigitalPinMode(LIGHT_PROXIMITY_RIGHT, ARD_PWM);
-    //m_arduino.sendDigitalPinMode(LIGHT_PROXIMITY_RIGHT, ARD_PWM);
+    m_arduino.sendDigitalPinMode(BUTTON_INFO, ARD_INPUT);
+    m_arduino.sendDigitalPinMode(BUTTON_ATTACK, ARD_INPUT);
+
 
     ofAddListener(m_arduino.EDigitalPinChanged, this, &ofApp::digitalPinChanged);
     ofAddListener(m_arduino.EAnalogPinChanged, this, &ofApp::analogPinChanged);
 
     //turn lights on
-    m_arduino.sendPwm(LIGHT_ON_LEFT, 255);
-    m_arduino.sendPwm(LIGHT_ON_RIGHT, 255);
+    //m_arduino.sendPwm(LIGHT_ON_LEFT, 255);
+    //m_arduino.sendPwm(LIGHT_ON_RIGHT, 255);
 }
 
 //--------------------------------------------------------------
@@ -189,23 +184,20 @@ void ofApp::updateArduino() {
 
 void ofApp::digitalPinChanged(const int& pinNum) {
     
-    // cout << m_arduino.getDigital(PROXIMITY);
-    //if (pinNum == PROXIMITY) {
-    //    std::cout << "digital pin: " + ofToString(pinNum) + " : " + ofToString(m_arduino.getDigital(pinNum)) << std::endl;
-    //}
-
     if (pinNum == BUTTON_ATTACK) {
-        if (obstacle1.rect.inside(player.x, player.y)) {
-            delete &obstacle1;
-        } else if (obstacle2.rect.inside(player.x, player.y)) {
-            delete& obstacle2;
+
+        if (obstacle1.rect.inside(player.x + player.width / 2, player.y + player.height / 2)) {
+            obstacle1.isKilled = true;
+        }
+        else if (obstacle2.rect.inside(player.x + player.width / 2, player.y + player.height / 2)) {
+            obstacle2.isKilled = true;
         }
     }
 
     if (pinNum == BUTTON_INFO) {
-        if (m_arduino.getAnalog(pinNum) == 0 && showInstructions == true) {
+        if (showInstructions == true) {
             showInstructions = false;
-        } else if (m_arduino.getAnalog(pinNum) == 0 && showInstructions == false) {
+        } else if (showInstructions == false) {
             showInstructions = true;
         }
     }
@@ -222,11 +214,14 @@ void ofApp::analogPinChanged(const int& pinNum) {
 
         //get analog value
         proximity_val = m_arduino.getAnalog(pinNum);
-        speed = (int)ofMap(proximity_val, 0, 1000, 1, 5);
         
-       // m_input_val = (int)ofMap(m_input_val, 0, 700, 0, 255);
-
-
+        //set speed
+        speed = (int)ofMap(proximity_val, 0, 700, 1, 5);
+        
+        //setup proximity light:
+        proximity_light = (int)ofMap(proximity_val, 0, 700, 0, 255);
+        m_arduino.sendPwm(LIGHT_ON_LEFT, proximity_light);
+        m_arduino.sendPwm(LIGHT_ON_RIGHT, proximity_light);
         
     }
 

@@ -8,12 +8,10 @@
 
 
 //digital
-#define BUTTON_INFO 10
-#define BUTTON_ATTACK 11
+#define BUTTON_INFO 11
+#define BUTTON_ATTACK 10
 #define LIGHT_ON_RIGHT 5
 #define LIGHT_ON_LEFT 6
-//#define LIGHT_PROXIMITY_RIGHT 3
-//#define LIGHT_PROXIMITY_RIGHT 4
 
 //arduino:
 #define ARDUINO_NAME "COM6"
